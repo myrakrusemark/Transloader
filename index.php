@@ -1,37 +1,9 @@
-<html>
-
-<head>
-<link rel="stylesheet" type="text/css" href="style.css">
-<link href='http://fonts.googleapis.com/css?family=Arvo' rel='stylesheet' type='text/css'>
-<link href='http://fonts.googleapis.com/css?family=Nixie+One' rel='stylesheet' type='text/css'>
-<meta name="viewport" content="initial-scale=1.0">
-</head>
-
-<body>
-<h1>The Transloader</h1>
-
-<div class="box">
-<center><p>The NEW Transloader is a nifty way to save your information to your Dropbox!</p>
-<ul>
-<li>Your Dropbox is safe! Transloader uploads to its own folder. It can't even see the rest.</li>
-<li>No flash drive? File too big? Just use this app! Your file will be waiting for you.</li></center>
-
-
 <?php
 error_reporting(E_ALL);
 require_once("DropboxClient.php");
-require_once 'login.php';
-
-$db_server = mysql_connect($db_hostname, $db_username, $db_password);
-if(!$db_server) die("Unable to snog MySQL: " . mysql_error());
-mysql_select_db($db_database, $db_server)
-  or die("Unabe to select smorgasborg: " . mysql_error());
-	
-$mysql = new mysqli($db_hostname, $db_username, $db_password, 'drop');
 
 // you have to create an app at https://www.dropbox.com/developers/apps and enter details below:
-
-	
+$app_path = "C:\Program Files (x86)\Ampps\www\dropdemo\\";
 $app_token = "gi8ihcnep3sxr13";
 $app_secret = "1vrjqtxthgvl0oo";
 $dropbox = new DropboxClient(array(
@@ -39,84 +11,71 @@ $dropbox = new DropboxClient(array(
 	'app_secret' => $app_secret,
 	'app_full_access' => true,
 ),'en');
-
-
 	
 $token_file = "tokens/".str_replace(".", "-", $_SERVER['REMOTE_ADDR']).".token";
 	if(isset($_GET['deauth']) && $_GET['deauth'] == 'yes') {
 			unlink($token_file);
 	}
+	
 handle_dropbox_auth($dropbox); // see below
-
-
 
 $tokenarray = explode('"', file_get_contents($token_file));
 $user_token = $tokenarray[3];
 $user_secret = $tokenarray[7];
-
-	#echo $user_token.'<br />';
-	#echo $user_secret.'<br />';
-	
-
 	
 // if there is no upload, show the form
 if(empty($_POST["fileURL"])) {
 ?>
-<center><p>Just enter the URL of the file you wish to download in the field below.</p></center>
-<div id="stylized" class="myform">
+
 <form enctype="multipart/form-data" method="POST" action="">
-<input type="text" name="fileURL" id="name" value="Enter URL" onfocus="if (this.value=='Enter URL') this.value='';"/>
-<input type="submit" value="Transload" title="Search" >
+File URL:<input type="text" name="fileURL" id="name" value="Enter URL" onfocus="if (this.value=='Enter URL') this.value='';"/>
+<input type="submit" value="Transload!" title="Search" >
 </form>
 <a id="unlink" href="?deauth=yes">Unlink</a>
-</div>
-</div>
 
 <?php 
 
 } else { 
 	$file_URL = $_POST["fileURL"];
-	$ufn = str_replace(".", "-", $_SERVER['REMOTE_ADDR']).'@'.time();
-	 
-	 $sql = 'INSERT INTO upload VALUES(\''.$ufn.'\', \''.$file_URL.'\')';
-	 mysqli_query($mysql, $sql) 
-		or die(mysqli_error($mysql));
+	$filename_tmp = explode("/", $file_URL);
+	$file_name = $filename_tmp[sizeof($filename_tmp)-1];
 
-	$command = '"C:\Program Files (x86)\Ampps\www\drop\drop.pl" '.$file_URL." ".$user_token." ".$user_secret." ".$app_token." ".$app_secret." > NUL";
 
-	#echo $command.'<br />';
+	$command = '"'.$app_path.'drop.pl" '.$file_URL." ".$user_token." ".$user_secret." ".$app_token." ".$app_secret." \"".$app_path."\"";
 	
- 	ob_start();
-	$retval = exec($command);
-	ob_end_clean();
-		
-		switch ($retval){
+print($command);	
+	if(strpos($file_name, "php?") !== false ||
+		strpos($file_name, ".") == false){
+	$retval = 2;
+	} else{
+		$retval = exec($command);
+	}
+	
+	switch ($retval){
+		case 2:
+			echo $retval.": Bad or malformed URL<br />";
+			break;
 		case 3:
-			echo $retval.": Couldn't send email!<br />";
+			echo $retval.": Error sending email<br />";
 			break;
 		case 4:
-			echo $retval.": File couldn't upload!<br />";
+			echo $retval.": Error uploading to Dropbox<br />";
 			break;
 		case 5:
-			echo $retval.": File couldn't download to server!<br />";
+			echo $retval.": Error downloading to server!<br />";
 			break;
 		default:
-			echo "<b>Finished! Please wait for an email.</b><br /><br />";
+			echo "Success! Please wait for an email.<br />";
 			break;		
-		}
+	}
 	
-	echo '<a href="/drop/">Upload a new file</a>';
+	echo '<a href="">Upload a new file</a>';
 	echo "</pre>";
 }
 
 
 
-
-
-
-
-
-
+//Dropbox-API Functions
 // ================================================================================
 // store_token, load_token, delete_token are SAMPLE functions! please replace with your own!
 function store_token($token_file, $name)
@@ -165,11 +124,8 @@ function handle_dropbox_auth($dropbox)
 		$auth_url = $dropbox->BuildAuthorizeUrl($return_url);
 		$request_token = $dropbox->GetRequestToken();
 		store_token($request_token, $request_token['t']);
-		die("Just <a href='$auth_url'>click here</a> to log in to Dropbox.");
+		die("<a href='$auth_url'>Click here</a> to log in to Dropbox.");
 	}
 }
+
 ?>
-<div class="bot">
-A production by Alan Helton, 2012.<a id="dropbox" href="http://www.dropbox.com"><img id="dblogo" src="dblogo.png" width=24 height=24></a>
-</div>
-</body>
