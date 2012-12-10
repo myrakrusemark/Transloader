@@ -7,6 +7,9 @@ Prerequisites:
 Perl
   IO::Socket::SSL 1.78 - Script will error without downgrading to this package
   WebService::Dropbox
+  Emailer::Send
+  Emailer::Send::Gmail
+  Emailer::Simple::Creator
 PHP
 Web Server
 BASH interpreter
