@@ -5,6 +5,7 @@ A PHP, Perl, BASH dropbox uploader using Internet URLs
 
 Prerequisites:
 Perl
+  IO::Socket::SSL 1.78 - Script will error without downgrading to this package
   WebService::Dropbox
 PHP
 Web Server
