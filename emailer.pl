@@ -3,11 +3,14 @@
   use Email::Send::Gmail;
   use Email::Simple::Creator;
  
-  $recipient =   $ARGV[0];
-  $subject = 	$ARGV[1];
-  $message = 	$ARGV[2];
+  $recipient = $ARGV[0];
+  $subject = $ARGV[1];
+  $message = $ARGV[2];
 
- 
+  
+
+			#print "Emailing ".$recipient."\n";
+			#print LOG "     ".$recipient."\n";
 		  my $email = Email::Simple->create(
 			  header => [
 				  From    => '',
@@ -26,4 +29,5 @@
 			  }
 			  );
 	
-			eval { $sender->send($email) }
+			eval { $sender->send($email) };
+				die "Error sending email: $@" if $@;

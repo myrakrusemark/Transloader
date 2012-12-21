@@ -20,7 +20,7 @@
 #
 
 #Added these arguments to injject login information for dropbox_uploader.sh
-  APP_KEY="$4"
+	APP_KEY="$4"
 	APP_SECRET="$5"
 	USER_KEY="$6"
 	USER_SECRET="$7"

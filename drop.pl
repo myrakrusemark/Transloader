@@ -3,12 +3,13 @@
  #use strict;
  #use warnings;
 
-my $url =   		$ARGV[0];
+my $url = 			$ARGV[0];
 my $access_token = 	$ARGV[1];
 my $access_secret = $ARGV[2];
 my $app_token = 	$ARGV[3];
 my $app_secret = 	$ARGV[4];
 my $app_path = 		$ARGV[5];
+my $save_path =		$ARGV[6];
 
 my @filenametmp =	split('\/', $url);
 	my $file_name = 	@filenametmp[scalar(@filenametmp)-1];
@@ -38,14 +39,16 @@ my $info = $dropbox->account_info or die $dropbox->error;
 print "Welcome, ".$info->{"display_name"}." (".$info->{"email"}.")\n";
 	
 #Fetch file and save to upload folder
-my $status = getstore($url, "upload\\".$file_name);
- 	sleep(5);
+my $status = getstore($url, $save_path."uploads/".$file_name);
+ 	sleep(2);
 
 #Upload
-if ($file_name)
+if ($file_name || $filename != '')
 {
 	#Replace absolute paths with cygwin style paths
-	my $command = '"C:\path\to\bash" "/cygdrive/c/path/to/app/./dropbox_uploader.sh" upload "/cygdrive/c/path/to/app/dropdemo/upload/'.$file_name.'" '.$file_name.' '.$app_token.' '.$app_secret.' '.$access_token.' '.$access_secret;
+	my $command = 'sh "'.$app_path.'dropbox_uploader.sh" upload '.$save_path.'uploads/'.$file_name.' '.$file_name.' '.$app_token.' '.$app_secret.' '.$access_token.' '.$access_secret;
+	
+	print($command);
 		
 	my $retval = system($command);
 			
@@ -53,11 +56,11 @@ if ($file_name)
 		die "Dropbox.sh:".$retval." File didn't upload\n";
 		exit 4;
 	}
-
 	#Email recipient	
-	$command = 'perl "'.$app_path.'\\emailer.pl '.$info->{"email"}.' "Your Dropbox Upload" "Congratulations, '.$info->{"display_name"}.'! Your upload of '.$file_name.' is finished."';		
+	$command = 'perl "'.$app_path.'emailer.pl" '.$info->{"email"}.' "Your Dropbox Upload" "Congratulations, '.$info->{"display_name"}.'! Your upload of '.$file_name.' is finished."';		
 		
 	$retval = system($command);
+print($command);
 
 	#Implementing	
 	#	if($retval != 0)

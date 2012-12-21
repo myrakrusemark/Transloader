@@ -18,7 +18,7 @@ class OAuthSimple {
     private $_nonce_chars;
 
     /** 
-   * Constructor
+	 * Constructor
      *
 	 * @access public
      * @param api_key (String) The API Key (sometimes referred to as the consumer key) This value is usually supplied by the site you wish to use.

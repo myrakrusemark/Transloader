@@ -15,7 +15,7 @@
 require_once(dirname(__FILE__)."/OAuthSimple.php");
 
 class DropboxClient {
-  
+	
 	const API_URL = "https://api.dropbox.com/1/";
 	const API_CONTENT_URL = "http://api-content.dropbox.com/1/";
 	
